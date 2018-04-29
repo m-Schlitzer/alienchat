@@ -1,0 +1,21 @@
+[package]
+name = "alienchat"
+version = "0.1.0"
+authors = ["Marcel Schlitzer <m-schlitzer@alienco.de>"]
+
+[dependencies]
+actix-web = {version="*", features=["alpn"]}
+actix = "*"
+env_logger = "*"
+log = "*"
+openssl = "*"
+
+rand = "*"
+bytes = "*"
+byteorder = "*"
+futures = "0.1"
+tokio-io = "*"
+tokio-core = "*"
+serde = "*"
+serde_json = "*"
+serde_derive = "*"
