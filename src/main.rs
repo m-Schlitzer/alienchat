@@ -17,7 +17,6 @@ use actix_web::{http, server::HttpServer, middleware, ws, App, Error, HttpReques
 use std::time::Instant;
 
 #[macro_use]
-mod server;
 
 // This is our websocket route state, this state is shared with all route instances
 // via `HttpContext::state()`
@@ -123,6 +122,7 @@ impl StreamHandler<ws::Message, ws::ProtocolError> for WsChatSession {
         }
     }
 }
+mod chatserver;
 
 fn main() {
     // Enable logger
@@ -137,7 +137,7 @@ fn main() {
     let sys = actix::System::new("chat");
 
     //Start chat server actor in seperate thread
-    let server: Addr<Syn, _> = Arbiter::start(|_| server::ChatServer::default());
+    let server: Addr<Syn, _> = Arbiter::start(|_| chatserver::ChatServer::default());
 
     HttpServer::new(
         move || {
