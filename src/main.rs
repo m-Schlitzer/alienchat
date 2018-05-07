@@ -18,10 +18,12 @@ extern crate serde_derive;
 
 use actix::{Addr, Arbiter, Syn};
 use actix_web::{http, middleware, server::HttpServer, App, HttpResponse};
+use std::env;
 //use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
 #[macro_use]
 mod chatserver;
+mod cmdarguments;
 mod controller;
 mod external_data_source;
 mod mock_data;
@@ -31,8 +33,14 @@ mod user;
 mod websocket;
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() > 1 {
+        cmdarguments::check_args(args);
+    }
+
     // Enable logger
-    ::std::env::set_var("RUST_LOG", "info");
+    env::set_var("RUST_LOG", "info");
     env_logger::init();
 
     // Enable ssl and get certs
