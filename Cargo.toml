@@ -9,6 +9,7 @@ actix = "*"
 env_logger = "*"
 log = "*"
 openssl = "*"
+postgres = "0.15"
 
 rand = "*"
 bytes = "*"

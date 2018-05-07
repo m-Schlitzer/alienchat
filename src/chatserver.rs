@@ -3,6 +3,7 @@
 // room through `ChatServer`.
 
 use actix::prelude::*;
+use database;
 use rand::{self, Rng, ThreadRng};
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
@@ -135,5 +136,6 @@ impl Handler<Message> for ChatServer {
 
     fn handle(&mut self, msg: Message, _: &mut Context<Self>) {
         self.send_message(&msg.room, msg.msg.as_str());
+        database::save_message(msg);
     }
 }
