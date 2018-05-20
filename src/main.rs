@@ -20,7 +20,6 @@ use actix::{Addr, Arbiter, Syn};
 use actix_web::{http, middleware, server::HttpServer, App, HttpResponse};
 //use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
-#[macro_use]
 mod actors;
 mod controller;
 mod external_data_source;
@@ -44,8 +43,31 @@ fn main() {
     //Start chat server actor in seperate thread
     let server: Addr<Syn, _> = Arbiter::start(|_| actors::chatserver::ChatServer::default());
 
+    fn user_resources(app: App) -> App {
+        app.resource("/user", |r| {
+            r.get().f(|_| HttpResponse::Ok());
+            r.post().f(|_| HttpResponse::Created());
+            r.put().f(|_| HttpResponse::Ok());
+            r.delete().f(|_| HttpResponse::Ok());
+        })
+    }
+
+    fn room_resources(app: App) -> App {
+        app.resource("/room", |r| {
+            r.get().f(|_| HttpResponse::Ok());
+            r.post().f(|_| HttpResponse::Created());
+            r.put().f(|_| HttpResponse::Ok());
+            r.delete().f(|_| HttpResponse::Ok());
+        })
+    }
+
     HttpServer::new(
-        move || {
+        move || { vec![
+            App::new()
+                .prefix("/api/v1")
+                .configure(user_resources)
+                .configure(room_resources)
+                .boxed(),
             // Websocket sessions state
             App::with_state(actors::websocket::WsChatSessionState { addr: server.clone() })
                 .middleware(middleware::Logger::default())
@@ -57,8 +79,10 @@ fn main() {
                 }))
                 // websocket route
                 .resource("/ws/", |r| r.route().f(actors::websocket::chat_route))
+                .boxed()
+        ]
     })
-    .bind("0.0.0.0:1888").expect("Cannot bind to 0.0.0.0:8080")
+    .bind("0.0.0.0:1888").expect("Cannot bind to 0.0.0.0:1888")
 //    .start_ssl(builder).unwrap();
     .start();
 
