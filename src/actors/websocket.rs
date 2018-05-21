@@ -2,7 +2,7 @@ extern crate actix;
 
 use actix::prelude::*;
 use actix_web::{ws, Error, HttpRequest, HttpResponse};
-use chatserver;
+use actors::chatserver;
 use std::time::Instant;
 
 // This is our websocket route state, this state is shared with all route instances

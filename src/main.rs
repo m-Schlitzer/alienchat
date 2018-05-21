@@ -21,14 +21,13 @@ use actix_web::{http, middleware, server::HttpServer, App, HttpResponse};
 //use openssl::ssl::{SslAcceptor, SslFiletype, SslMethod};
 
 #[macro_use]
-mod chatserver;
+mod actors;
 mod controller;
 mod external_data_source;
 mod mock_data;
 mod role;
 mod room;
 mod user;
-mod websocket;
 
 fn main() {
     // Enable logger
@@ -43,12 +42,12 @@ fn main() {
     let sys = actix::System::new("chat");
 
     //Start chat server actor in seperate thread
-    let server: Addr<Syn, _> = Arbiter::start(|_| chatserver::ChatServer::default());
+    let server: Addr<Syn, _> = Arbiter::start(|_| actors::chatserver::ChatServer::default());
 
     HttpServer::new(
         move || {
             // Websocket sessions state
-            App::with_state(websocket::WsChatSessionState { addr: server.clone() })
+            App::with_state(actors::websocket::WsChatSessionState { addr: server.clone() })
                 .middleware(middleware::Logger::default())
                  // redirect to websocket.html
                 .resource("/", |r| r.method(http::Method::GET).f(|_| {
@@ -57,7 +56,7 @@ fn main() {
                         .finish()
                 }))
                 // websocket route
-                .resource("/ws/", |r| r.route().f(websocket::chat_route))
+                .resource("/ws/", |r| r.route().f(actors::websocket::chat_route))
     })
     .bind("0.0.0.0:1888").expect("Cannot bind to 0.0.0.0:8080")
 //    .start_ssl(builder).unwrap();
